@@ -69,7 +69,6 @@ echo ---------------------------------------------------------------------------
 #install rust
 sudo yum remove rustc -y
 sh ~/public_projects/node_automation/rustup-init.sh -y
-rustup update
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Source the environment-----------------------------------
