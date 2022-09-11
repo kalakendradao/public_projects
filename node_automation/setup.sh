@@ -68,7 +68,7 @@ echo ----------------------------Install rust-----------------------------------
 echo -------------------------------------------------------------------------------------
 #install rust
 sudo yum remove rustc -y
-curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+sh ~/public_projects/node_automation/rustup-init.sh -y
 rustup update
 
 echo -------------------------------------------------------------------------------------
