@@ -61,13 +61,13 @@ echo ---------------------------------------------------------------------------
 echo ----------------------------Install Building env-------------------------------------
 echo -------------------------------------------------------------------------------------
 # Install Building env
-sudo yum install clang build-essential make
-sudo yum remove rustc
+sudo yum install clang build-essential make -y
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Install rust---------------------------------------------
 echo -------------------------------------------------------------------------------------
 #install rust
+sudo yum remove rustc -y
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 rustup update
 
