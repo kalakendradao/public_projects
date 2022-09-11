@@ -1,4 +1,4 @@
-network=${ChainNetwork}
+network=$1
 
 #install node npm
 echo -------------------------------------------------------------------------------------
@@ -92,14 +92,14 @@ echo ---------------------------------------------------------------------------
 echo ----------------------------Compile nearcore binary----------------------------------
 echo -------------------------------------------------------------------------------------
 # Compile nearcore binary
-cargo build -p neard --release --features "${network}"
+cargo build -p neard --release --features "$network"
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Initialize Working Directory-----------------------------
 echo -------------------------------------------------------------------------------------
 # Initialize Working Directory
 cd ~/nearcore
-./target/release/neard --home ~/.near init --chain-id "${network}" --download-genesis
+./target/release/neard --home ~/.near init --chain-id "$network" --download-genesis
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Replace Config.json--------------------------------------
@@ -107,14 +107,14 @@ echo ---------------------------------------------------------------------------
 # Replace Config.json
 cd ~/.near
 rm ~/.near/config.json
-wget -O ~/.near/config.json https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/"${network}"/config.json
+wget -O ~/.near/config.json https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/"$network"/config.json
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Download Latest Snapshot---------------------------------
 echo -------------------------------------------------------------------------------------
 # Download Latest Snapshot
 cd ~/.near
-aws s3 --no-sign-request cp s3://build.openshards.io/stakewars/"${network}"/data.tar.gz .  
+aws s3 --no-sign-request cp s3://build.openshards.io/stakewars/"$network"/data.tar.gz .  
 tar -xzvf data.tar.gz
 
 echo -------------------------------------------------------------------------------------
