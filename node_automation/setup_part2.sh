@@ -1,4 +1,6 @@
-network=$1
+cd /$USER/public_projects/node_automation/
+myString=$(ls | find -type d -name "*net")
+network="${myString:2}"
 echo $network
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Source the environment-----------------------------------
