@@ -44,8 +44,9 @@ echo ----------------------------Download Latest Snapshot-----------------------
 echo -------------------------------------------------------------------------------------
 # Download Latest Snapshot
 cd ~/.near
-aws s3 --no-sign-request cp s3://build.openshards.io/stakewars/"$network"/data.tar.gz .  
-tar -xzvf data.tar.gz
+aws s3 --no-sign-request cp s3://near-protocol-public/backups/"$network"/rpc/latest .
+LATEST=$(cat latest)
+aws s3 --no-sign-request cp --no-sign-request --recursive s3://near-protocol-public/backups/"$network"/rpc/$LATEST ~/.near/data
 
 echo -------------------------------------------------------------------------------------
 echo ----------------------------Run node-------------------------------------------------
