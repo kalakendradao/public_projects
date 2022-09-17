@@ -1,0 +1,18 @@
+Description=NEARd Daemon Service
+
+[Service]
+Type=simple
+User=root
+#Group=near
+WorkingDirectory=/home/root/.near
+ExecStart=/home/root/nearcore/target/release/neard run
+StandardOutput=file:/home/root/.near/neard.log
+StandardError=file:/home/root/.near/nearderror.log
+Restart=on-failure
+RestartSec=30
+KillSignal=SIGINT
+TimeoutStopSec=45
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
