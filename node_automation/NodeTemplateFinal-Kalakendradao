@@ -1,0 +1,238 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.xlarge
+    Description: Enter instance size. Default is t2.xlarge.
+    AllowedValues:
+      - t2.xlarge
+      - t2.2xlarge
+      - t3.xlarge
+      - t3.2xlarge
+      - t3a.xlarge
+      - t3a.2xlarge
+      - m2.xlarge
+      - m2.2xlarge
+      - m2.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+  AMI:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    Description: The Linux AMI to use.
+  Key:
+    Type: String
+    Default: NodeLogin
+    Description: The key used to access the instance.
+  AvailabilityZone:
+    Type: 'AWS::EC2::AvailabilityZone::Name'
+    Description: Availability Zone of the instance.
+  RootVolumeSize:
+    Description: Size of the root volume
+    Type: Number
+    Default: 250
+    MinValue: 250
+    MaxValue: 2000
+  ChainNetwork:
+    Type: String
+    Description: Choose the Network to initialize.
+    Default: shardnet
+    AllowedValues:
+      - testnet
+      - guildnet
+      - shardnet
+      - mainnet
+  NearcoreVersion:
+    Type: String
+    Description: Enter the version of nearcore to install from here https://github.com/near/nearcore/tags Latest unstable release (CODE_COLOR- CODE_GREEN_TESTNET) is recommended if you are running on testnet and latest stable version (CODE_COLOR- CODE_GREEN_MAINNET) is recommended if you are running on mainnet.
+Resources:
+  RootRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
+  RootInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref RootRole
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: NodeVPC
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  SubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Ref AvailabilityZone
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+  RouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+  InternetRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: InternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTable
+  SubnetARouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref SubnetA
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: Node Security Group
+      GroupDescription: Instance level firewall
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.245.156/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 52.147.25.42/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 52.147.31.180/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.244.132/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 52.147.25.94/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 52.147.25.173/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.245.171/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.245.7/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.244.147/32
+        - IpProtocol: tcp
+          FromPort: '10933'
+          ToPort: '10933'
+          CidrIp: 20.188.244.240/32
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '3030'
+          ToPort: '3030'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '8080'
+          ToPort: '8080'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+  Node:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceTypeParameter
+      IamInstanceProfile: !Ref RootInstanceProfile
+      KeyName: !Ref Key
+      SubnetId: !Ref SubnetA
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref RootVolumeSize
+      UserData: !Base64 
+        'Fn::Sub': >
+          #!/bin/bash
+
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s
+          2>/dev/console) 2>&1
+
+          #mkdir ${ChainNetwork}
+
+          cd ~
+
+          sudo yum install -y git
+
+          git clone https://github.com/kalakendradao/public_projects
+
+          cd public_projects/node_automation/
+
+          network="${ChainNetwork}"
+          nearcore_version="${NearcoreVersion}"
+
+          mkdir ${ChainNetwork}
+
+          tr -d "\r" < setup_part1.sh > cleaned_part1.sh
+
+          tr -d "\r" < setup_part2.sh > cleaned_part2.sh
+          
+          tr -d "\r" < setup_part3.sh > cleaned_part3.sh
+
+          sh cleaned_part1.sh $network $nearcore_version >output_1.log 2>&1
+          
+          sudo su - $USER -c 'sh /$USER/public_projects/node_automation/cleaned_part2.sh' >output_2.log 2>&1 &
+          disown
+          #sh cleaned_part3.sh >output_3.log 2>&1
+      Tags:
+        - Key: Appplication
+          Value: Node
+        - Key: Domain
+          Value: None
+        - Key: Environment
+          Value: Test
+Outputs:
+  PublicIp:
+    Value: !GetAtt 
+      - Node
+      - PublicIp
+    Description: Server's PublicIp Address
