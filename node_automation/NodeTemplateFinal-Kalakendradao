@@ -22,7 +22,9 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
-      - m4.10xlarge
+      - m4.10xlarge      
+      - m5.2xlarge
+      - c6g.2xlarge
   AMI:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
